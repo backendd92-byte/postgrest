@@ -1,9 +1,7 @@
-version: "3.8"
-
 services:
   postgres:
     image: postgres:15
-    container_name: postgrest_postgres
+    container_name: postgrest
     restart: unless-stopped
     env_file:
       - .env
@@ -18,7 +16,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4:9.7
-    container_name: postgrest_pgadmin
+    container_name: pgadmin
     restart: unless-stopped
     env_file:
       - .env
@@ -36,9 +34,24 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
+  rabbitmq:
+    image: rabbitmq:4.0-management-alpine
+    container_name: rabbitmq
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS:-guest}
+    networks:
+      - traefik-net
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
 volumes:
   postgres_data:
   pgadmin_data:
+  rabbitmq_data:
 
 networks:
   traefik-net:
